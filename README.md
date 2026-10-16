@@ -72,6 +72,12 @@ A settled end node from [`examples/acme`](examples/acme/tree/work/bugs/regressio
 
 No code is copied in. The tree holds **where things are, when to open them, whom to ask and how you judge** — and points to the repo harness for everything it already knows.
 
+### It also works with the tools your team already uses
+
+If your work runs through Slack, Jira, GitLab, Confluence or Sentry, connect them as MCP servers or CLIs and `/survey` picks them up. Each one holds a piece of the story — the request in a thread, the ticket, the merge request, the alert — and `/grow` follows a case through all of them, so the tree learns *how a request travels* from the first message to the final reply. It only ever reads: no messages, comments, transitions or merges.
+
+One real tree grown this way reached ~750 nodes, ~430 real cases and ~1,100 exam questions in three days of `/loop /grow`.
+
 ## The exam loop
 
 Most "agent memory" is never checked. Here, every 10 grows the frontier raises `@exam`:
