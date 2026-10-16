@@ -4,6 +4,7 @@
     "name": "LazyerIJ",
     "url": "https://github.com/LazyerIJ"
   },
+  "description": "Grow a knowledge tree of how you work, so an agent can work in your place — and pass the exam.",
   "plugins": [
     {
       "name": "self-clone",
