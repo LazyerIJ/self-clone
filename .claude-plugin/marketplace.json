@@ -1,0 +1,15 @@
+{
+  "name": "self-clone",
+  "owner": {
+    "name": "LazyerIJ",
+    "url": "https://github.com/LazyerIJ"
+  },
+  "plugins": [
+    {
+      "name": "self-clone",
+      "source": "./",
+      "description": "Grow a knowledge tree of how you work, so an agent can work in your place.",
+      "version": "0.1.0"
+    }
+  ]
+}

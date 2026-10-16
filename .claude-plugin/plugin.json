@@ -1,0 +1,12 @@
+{
+  "name": "self-clone",
+  "version": "0.1.0",
+  "description": "Grow a deep, narrow knowledge tree of how you work — where things are, when to open them, whom to ask, how you judge — so an agent can start from it and work on your machine in your place. Skills: clone-init, grow, exam, survey.",
+  "author": {
+    "name": "LazyerIJ",
+    "url": "https://github.com/LazyerIJ"
+  },
+  "repository": "https://github.com/LazyerIJ/self-clone",
+  "license": "MIT",
+  "keywords": ["knowledge-tree", "agent", "memory", "self-clone", "workflow", "skills"]
+}

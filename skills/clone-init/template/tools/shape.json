@@ -1,0 +1,48 @@
+{
+  "max_children": 3,
+  "max_children_shallow": {
+    "depth_below": 3,
+    "max": 5
+  },
+  "max_leaves": 2,
+  "max_body_lines": 40,
+  "slug": "^[a-z0-9][a-z0-9-]{0,31}$",
+  "branch_states": ["stub", "growing", "settled"],
+  "leaf_kinds": ["fact", "preference", "pattern", "todo", "device", "procedure", "role", "doc"],
+  "rels": ["uses", "depends", "serves", "owner", "about", "same"],
+  "sections": {
+    "what": "What",
+    "boundary": "Boundary",
+    "evidence": "Evidence",
+    "relations": "Relations",
+    "run": "Run",
+    "cases": "Cases",
+    "exam": "Exam",
+    "unknown": "Unknown",
+    "candidates": "Candidates"
+  },
+  "exam_line": "^-\\s*Q\\s*[:：](.+?)A\\s*[:：]\\s*(\\S.*)$",
+  "unsure_words": ["unknown", "guess", "not sure"],
+  "branch_sections_required": {
+    "stub": ["what"],
+    "growing": ["what", "boundary", "evidence"],
+    "settled": ["what", "boundary", "evidence"]
+  },
+  "settled_min_evidence": 3,
+  "revisit_days": 7,
+  "survey_days": 7,
+  "exam_every": 10,
+  "floor": {
+    "min_depth": 6,
+    "min_depth_by_facet": {
+      "systems": 4
+    },
+    "sections": ["what", "boundary", "evidence", "run", "cases", "exam"],
+    "min_cases": 2,
+    "min_exam": 3,
+    "bundle_words": ["①", "in general", "and so on", "etc."],
+    "max_exec_items": 4,
+    "max_symbols": 1,
+    "code_symbol_regex": "::[A-Za-z_]\\w*|\\w+\\.(?:py|ts|tsx|js|go|java|kt|rb|rs):\\d+|\\bdef \\w+|\\bfunction \\w+|\\.objects\\.\\w+"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "owner": "Alex",
+  "clone": "the clone",
+  "git_author": "alex",
+  "work_roots": ["~/code"],
+  "work_root_depth": 2,
+  "harness_dirs": ["tasks", "docs/adr", "notes"],
+  "session_match": ["code"],
+  "notes_dirs": ["~/notes"],
+  "extra_read_dirs": [],
+  "never_read": ["~/private/**"]
+}
