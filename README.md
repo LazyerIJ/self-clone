@@ -4,9 +4,9 @@
 
 # self-clone
 
-### Teach an agent to do your job — then make it pass the exam.
+### Ask it how you'd handle something.<br/>It answers like you would — from one tree.
 
-**Your repos have harnesses that know the code. Nothing knows *you*. self-clone does.**
+**Years of your sessions, shell history, tickets and threads, squeezed into a knowledge tree.<br/>Claude reads only that tree, and it still does your job your way.**
 
 [![Claude Code skill](https://img.shields.io/badge/Claude_Code-plugin-1b1b19?style=flat-square&logo=claude&logoColor=white)](#install)
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-SKILL.md-1b1b19?style=flat-square)](https://agentskills.io)
@@ -14,7 +14,7 @@
 [![Read-only](https://img.shields.io/badge/sources-read--only-1b1b19?style=flat-square)](#what-it-never-does)
 [![MIT](https://img.shields.io/badge/license-MIT-1b1b19?style=flat-square)](LICENSE)
 
-[Quick start](#quick-start) · [What a grown node looks like](#what-a-grown-node-looks-like) · [The exam loop](#the-exam-loop) · [How it works](#how-it-works) · [FAQ](#faq)
+[Just ask](#just-ask) · [Quick start](#quick-start) · [What's in a node](#whats-in-a-node) · [The exam](#the-exam-is-the-same-question-graded) · [How it works](#how-it-works) · [FAQ](#faq)
 
 <code>/plugin marketplace add LazyerIJ/self-clone</code>
 
@@ -26,11 +26,39 @@
 
 ---
 
-Every repo you work in already has a Claude harness — `CLAUDE.md`, skills, docs — that knows the code. What no harness knows is **the person at the keyboard**: where work comes in, which repo and skill you open for it, what you type by hand outside the harness, whom you ask, and how you decide at the moments the harness stops and waits for you.
+## Why
 
-self-clone grows that knowledge into a **deep, narrow tree** from the traces already on your machine — Claude sessions, shell history, task notes, git logs, tickets, chat threads. Then it **tests the tree**: a sub-agent that may read *only the tree* replays a real past ticket, gets graded against what you actually did, and every gap is pinned back into the tree to be grown next.
+Your repos already have a Claude harness (`CLAUDE.md`, skills, docs) that knows the code. None of them know **you**: where the work comes in, which repo you open for it, the commands you type by hand, who you ping, and how you make the call when the harness stops and waits for you.
 
-Run it in a loop and it never finishes. It just keeps getting closer to you.
+That knowledge already exists. It's just scattered across years of Claude sessions, shell history, notes, git logs, tickets and chat threads. Nobody is going to dig through all of that every time you ask a question.
+
+So self-clone digests it once, into a **deep, narrow tree**. After that:
+
+> 🧠 **The tree is the only thing Claude needs to read.**
+> No re-reading raw logs, no searching Slack again. You ask about some piece of work, and the answer comes back the way *you* would handle it: same commands, same people, same judgement calls.
+
+And because "trust me, it knows you" isn't good enough, the tree keeps getting tested against what you actually did. Whatever it gets wrong goes back in to be grown next.
+
+## Just ask
+
+Here's what it looks like once the tree has grown. This uses [`examples/acme`](examples/acme), a made-up engineer called Alex:
+
+> **You:** The PDF invoice export lost its totals row after v2.14. How would you handle it?
+
+> **Clone** *(read only `tree/`)*:
+> It worked in v2.13, so it's a regression, and the export isn't down, so no hotfix. Bisect it.
+>
+> 1. In `~/code/acme-api`, `git stash -u` if the tree's dirty.
+> 2. `git bisect start main v2.13 && git bisect run make test-fast TEST=<invoice export test>`
+> 3. If it lands on a **dependency bump**, stop. Don't patch it yourself, hand the sha to **Priya** (she owns deps). Same thing happened with the CSV header bug, ACME-412.
+> 4. If it lands on a **migration**, don't re-run it locally. `[harness: acme-api — what does <sha> change in the schema?]`
+> 5. Comment on the ticket: `first bad: <sha> (<author>), found by bisect`, then `git bisect reset`.
+>
+> 📎 *from* `work/bugs/regression/bisect/local-repro/first-bad-commit`
+
+None of that came from the code. The repo, the tag range, Priya, the "don't touch migrations" rule and the ticket comment all came from Alex's own history, distilled into one node.
+
+When the tree doesn't know something, the clone says so with `[not in tree]` or `[guess]`. It doesn't bluff.
 
 ## Quick start
 
@@ -40,19 +68,21 @@ Run it in a loop and it never finishes. It just keeps getting closer to you.
 /clone-init
 ```
 
-`/clone-init` asks five things (home folder, your name, where your repos live, notes folders, folders it must never read) and creates your **clone home** — a local git folder with no remote. Then:
+`/clone-init` asks five quick things (home folder, your name, where your repos live, notes folders, folders it must never read) and sets up your **clone home**, a local git folder with no remote. Then:
 
 ```
 cd ~/self-clone-home && claude
-/survey          # map your sources: repos, sessions, shell, and which tracker/chat/wiki are reachable
-/loop /grow      # grow one node per step, forever; /exam comes up on its own every 10 grows
+/survey          # map your sources: repos, sessions, shell, and any tracker/chat/wiki you can reach
+/loop /grow      # grows one node per step, forever; /exam kicks in on its own every 10 grows
 ```
 
-Want to feed it something specific? `/grow ACME-412` or `/grow <chat thread link>` follows that case end to end and pins it into every node it touches.
+Want it to learn one specific case? `/grow ACME-412` or `/grow <chat thread link>` follows that case end to end and pins it into every node it touches.
 
-## What a grown node looks like
+Once you're happy with it, open Claude in the clone home and just ask.
 
-A settled end node from [`examples/acme`](examples/acme/tree/work/bugs/regression/bisect/local-repro/first-bad-commit/_branch.md) — a fictional engineer, Alex:
+## What's in a node
+
+This is the settled node the answer above came from ([full file](examples/acme/tree/work/bugs/regression/bisect/local-repro/first-bad-commit/_branch.md)):
 
 ```markdown
 ## Run
@@ -70,42 +100,42 @@ A settled end node from [`examples/acme`](examples/acme/tree/work/bugs/regressio
 - Q: Bisect lands on a dependency bump. What now? A: Stop — hand it to Priya with the sha.
 ```
 
-No code is copied in. The tree holds **where things are, when to open them, whom to ask and how you judge** — and points to the repo harness for everything it already knows.
+No code gets copied in. A node holds **where things are, when to open them, who to ask and how you decide**, and for anything the repo harness already knows, it just points there.
 
-### It also works with the tools your team already uses
+### Works with your team's tools too
 
-If your work runs through Slack, Jira, GitLab, Confluence or Sentry, connect them as MCP servers or CLIs and `/survey` picks them up. Each one holds a piece of the story — the request in a thread, the ticket, the merge request, the alert — and `/grow` follows a case through all of them, so the tree learns *how a request travels* from the first message to the final reply. It only ever reads: no messages, comments, transitions or merges.
+If your work runs through Slack, Jira, GitLab, Confluence or Sentry, hook them up as MCP servers or CLIs and `/survey` will find them. Each one holds a piece of the story (the ask in a thread, the ticket, the MR, the alert), and `/grow` follows a case across all of them. That's how the tree learns *how a request actually travels*, from the first message to the final reply. It only ever reads. No messages, comments, transitions or merges.
 
-One real tree grown this way reached ~750 nodes, ~430 real cases and ~1,100 exam questions in three days of `/loop /grow`.
+One real tree grown this way hit **~750 nodes, ~430 real cases and ~1,100 exam questions** after three days of `/loop /grow`.
 
-## The exam loop
+## The exam is the same question, graded
 
-Most "agent memory" is never checked. Here, every 10 grows the frontier raises `@exam`:
+Most "agent memory" never gets checked. Here the exam *is* the use case from [Just ask](#just-ask), run on a past ticket where we already know what you did:
 
-1. **Pick real work** — replay a past ticket (only the original request is shown), a scenario from the bank, or a new question aimed at the tree's weakest spot.
-2. **Answer from the tree only** — an Explore sub-agent may open only paths the tree points to. Missing steps must be marked `[not in tree]`, uncertain ones `[guess]`, code questions handed off as `[harness: <repo> — <ask>]`.
-3. **Grade against the sources** — correct · executable · judgement · people · complete, 0–5 each. **22/25 with no `[not in tree]` or `[guess]`** = "can replace".
-4. **Pin the holes** — each gap goes into the `## Unknown` of the node it belongs to, and settled nodes drop back to growing. `/grow` fills `[exam]` holes first.
+1. **Pick real work.** Replay an old ticket (only the original request is shown), a scenario from the bank, or a fresh question aimed at the tree's weakest spot.
+2. **Answer from the tree only.** An Explore sub-agent can open only paths the tree points to. Missing steps get marked `[not in tree]`, shaky ones `[guess]`, code questions go out as `[harness: <repo> — <ask>]`.
+3. **Grade it against what really happened.** Correct · executable · judgement · people · complete, 0–5 each. **22/25 with no `[not in tree]` or `[guess]`** means *it can replace you* on that one.
+4. **Pin the holes.** Each gap goes into the `## Unknown` of the node it belongs to, and that node drops back to growing. `/grow` fills exam holes first.
 
-See a [sample exam log](examples/acme/exams/log/2026-10-02-1410-R-checkout-500.md): 14/25 → four grows → 23/25.
+Here's a [sample exam log](examples/acme/exams/log/2026-10-02-1410-R-checkout-500.md): **14/25 → four grows → 23/25.**
 
 ## How it works
 
 | skill | what it does |
 |---|---|
-| `/clone-init` | creates the clone home: `tree/`, `tools/`, `sources/`, `exams/`, `RULES.md` |
-| `/survey` | maps local sources and which external systems are reachable — through tools that carry their own credentials |
-| `/grow` | grows **one node** per call: reads its sources to the end, then splits it one level down or fills the floor test |
+| `/clone-init` | sets up the clone home: `tree/`, `tools/`, `sources/`, `exams/`, `RULES.md` |
+| `/survey` | maps your local sources and which outside systems are reachable (through tools that carry their own credentials) |
+| `/grow` | grows **one node** per call: reads its sources all the way through, then splits it one level down or fills in the floor test |
 | `/exam` | the loop above |
 
-**Code owns shape, the model owns content.** `tools/tree.py` (Python stdlib only) enforces a deep, narrow shape — ≤ 3 children per branch, no single-child branches, ≤ 40-line bodies, one split criterion per level — and picks the next step: shape violations → exam holes → pinned cases → nodes below the floor → stubs → unknowns → stale nodes. What goes where is decided by Claude.
+**Code owns the shape, the model owns the content.** `tools/tree.py` (Python stdlib only) keeps the tree deep and narrow: ≤ 3 children per branch, no single-child branches, ≤ 40-line bodies, one split rule per level. It also picks what to grow next: shape violations → exam holes → pinned cases → nodes below the floor → stubs → unknowns → stale nodes. What goes where is up to Claude.
 
-**The floor test.** An end node is `settled` only when it is *one thing*, *can be done as written* (exact command, path, channel, decision rule — or "ask the `<repo>` harness <what>"), *is not wrong* (every fact was opened and checked), is deep enough, and has `## Run`, two real `## Cases` with pointers, three `## Exam` Q&As and no `## Unknown`.
+**The floor test.** An end node only counts as `settled` when it's *one thing*, *doable as written* (exact command, path, channel, decision rule, or "ask the `<repo>` harness <what>"), *actually right* (every fact was opened and checked), deep enough, and has `## Run`, two real `## Cases` with pointers, three `## Exam` Q&As and no `## Unknown` left.
 
 ```
 tree/
 ├── work/       what you do          → bugs/regression/bisect/local-repro/first-bad-commit
-├── practice/   how you judge        → approvals/reviewer-choice/…
+├── practice/   how you decide       → approvals/reviewer-choice/…
 ├── systems/    what you work on     → a map: repo, harness, doc, owner, alerts
 ├── env/        where, with what     → devices/laptop/ssh/jump-host
 └── org/        with whom            → colleagues/design/<person>/review-request
@@ -113,11 +143,11 @@ tree/
 
 ## What it never does
 
-- **reads secrets** — `.env*`, keys, tokens are denied; it only notes that a credential exists
-- **writes anywhere but the clone home** — source repos and external systems are read-only; no commits, comments, messages or state changes
-- **stores customer or personal data**, or quotes chat and ticket bodies verbatim
-- **copies what is already written** — code, docs and wiki pages get a pointer, not a copy
-- **leaves your machine** — the clone home has no git remote, and web search is denied so internal names never reach it
+- 🔒 **Read secrets.** `.env*`, keys and tokens are blocked; it only notes that a credential exists
+- ✋ **Write anywhere but the clone home.** Source repos and outside systems are read-only. No commits, comments, messages or state changes
+- 🙈 **Keep customer or personal data**, or quote chat and ticket bodies word for word
+- 📎 **Copy what's already written.** Code, docs and wiki pages get a pointer, not a copy
+- 🏠 **Leave your machine.** The clone home has no git remote, and web search is blocked so internal names never end up in a search box
 
 ## Install
 
@@ -132,9 +162,9 @@ tree/
 npx skills add https://github.com/LazyerIJ/self-clone
 ```
 
-**Manually** — copy `skills/*` into `~/.claude/skills/`.
+**Manually**: copy `skills/*` into `~/.claude/skills/`.
 
-The skills follow the [Agent Skills](https://agentskills.io) `SKILL.md` format. They are built and tested on Claude Code; `/exam` uses Claude Code's sub-agents and `/loop`, so other agents may need adapting.
+The skills use the [Agent Skills](https://agentskills.io) `SKILL.md` format. They're built and tested on Claude Code; `/exam` relies on Claude Code's sub-agents and `/loop`, so other agents may need some tweaking.
 
 ## Requirements
 
@@ -142,23 +172,23 @@ Claude Code · Python 3.9+ (standard library only) · git.
 
 ## Configuration
 
-- `tools/shape.json` — every limit: depth, fan-out, floor test, revisit days, exam frequency, and the section headings themselves (switch `## What` to `## 무엇` or any language).
-- `clone.json` — your name, work roots, harness output folders, notes folders, never-read folders.
-- `RULES.md` — the constitution your clone follows. Edit it.
+- `tools/shape.json`: every limit (depth, fan-out, floor test, revisit days, exam frequency) and the section headings themselves. Switch `## What` to `## 무엇` or any language you like.
+- `clone.json`: your name, work roots, harness output folders, notes folders, never-read folders.
+- `RULES.md`: the rules your clone lives by. Make them yours.
 
 ## FAQ
 
 **Isn't this just a big `CLAUDE.md` or memory file?**
-No. Memory grows sideways and is never tested. This tree is forced to go deep (one split criterion per level, a floor test before anything is "done"), it refuses to copy what is already written, and an exam keeps proving where it is wrong.
+No. Memory piles up sideways and nobody ever checks it. This tree is forced to go deep (one split rule per level, a floor test before anything counts as done), it won't copy what's already written, and the exam keeps showing exactly where it's wrong. That's why the tree alone is enough to answer from.
 
 **Does anything get uploaded?**
-Nothing beyond your normal Claude Code session. The clone home is a local git folder with no remote, and the generated permissions deny web search, `git push` and reading secrets.
+Nothing beyond your normal Claude Code session. The clone home is a local git folder with no remote, and the generated permissions block web search, `git push` and reading secrets.
 
-**How long until it is useful?**
-The first `/survey` and a few dozen grows give you a usable map. "Can replace" on a real replayed ticket is the bar — the exam log tells you honestly how far away that is.
+**How long until it's useful?**
+The first `/survey` plus a few dozen grows gets you a usable map. The real bar is "can replace" on a replayed ticket, and the exam log will tell you honestly how far off that is.
 
-**Can I use it for non-engineering work?**
-Yes. The facets (work · practice · systems · env · org) fit any desk job; rename them in `tree/` and `RULES.md`.
+**Can I use it outside engineering?**
+Yes. The facets (work · practice · systems · env · org) fit pretty much any desk job. Rename them in `tree/` and `RULES.md`.
 
 ## Star history
 
